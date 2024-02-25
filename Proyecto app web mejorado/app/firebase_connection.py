@@ -18,17 +18,17 @@ firebase_admin.initialize_app(cred, {
 
 ref = db.reference("/")
 
-def obtener_carritos():
+def obtener_carritos(user):
+    print(user)
     # Obtén una referencia al nodo de todos los carritos en la base de datos
-    ref_carritos = db.reference('/carrito')
-
+    #ref_carritos = db.reference('/carrito')
     # Consulta todos los carritos
-    carritos = ref_carritos.get()
-    print(carritos)
+    # carritos = ref_carritos.get()
+    ref_carrito = db.reference(f'/carrito/{correo.split("@")[0]}')
+    print(ref_carrito)
 
     return carritos
 
-obtener_carritos()
 
 
 def agregar_producto_al_carrito(correo, producto_id, precio_producto):
