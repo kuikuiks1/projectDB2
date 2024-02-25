@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Bienvenido a nuestra aplicación</h1>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('login') }}" class="btn">Iniciar sesión</a></li>
+                    <li><a href="{{ url_for('signup') }}" class="btn">Registrarse</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Descubre una nueva experiencia</h2>
+                <p>Explora nuestra amplia gama de productos y encuentra lo que necesitas.</p>
+                <a href="{{ url_for('products') }}" class="btn">Explorar productos</a>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>Pie de página de la aplicación</p>
+        </div>
+    </footer>
+</body>
+</html>
+
