@@ -35,9 +35,19 @@
           <h2>{{ product['nombre'] }}</h2>
           <p>Precio: ${{ product['precio'] }}</p>
           <!-- Otros detalles del producto si los tienes -->
-          <form method="get" action="{{ url_for('update_price', product_id=product['_id']) }}">
+          <!-- Add button to add product to the cart -->
+          <form
+            method="get"
+            action="{{ url_for('add_to_cart', product_id=product['_id']) }}"
+          >
+            <button type="submit">Agregar al Carrito</button>
+          </form>
+          <form
+            method="get"
+            action="{{ url_for('update_price', product_id=product['_id']) }}"
+          >
             <button type="submit">Actualizar Precio</button>
-        </form>
+          </form>
         </div>
         {% endfor %}
       </div>

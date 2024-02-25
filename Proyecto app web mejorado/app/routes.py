@@ -4,6 +4,8 @@ from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, WriteError,ConnectionFailure
 from datetime import datetime
 from bson import ObjectId
+from .firebase_connection import agregar_producto_al_carrito, quitar_producto_del_carrito, calcular_precio_total_y_limpiar
+
 
 try:
     # Intentamos establecer la conexión con MongoDB Atlas
@@ -108,4 +110,20 @@ def update_price(product_id):
             return render_template('error.html', error="No se pudo actualizar el precio del producto")
 
     return render_template('update_price.html', product=product)
+
+@app.route('/add_to_cart/<string:product_id>')
+def add_to_cart(product_id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Retrieve product information using the provided product_id
+    product = collection_products.find_one({"_id": ObjectId(product_id)})
+
+    if not product:
+        return render_template('error.html', error="Producto no encontrado")
+
+    # Add the product to the cart in the Firebase database
+    agregar_producto_al_carrito(session['usuario'], product_id, product['precio'])
+
+    return redirect(url_for('products'))
 

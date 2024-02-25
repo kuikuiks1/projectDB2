@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
 
-cred = credentials.Certificate(r"C:\Python_Test\tp-ing-datos-2-firebase-adminsdk-jhfmf-8540fa01e3.json")
+cred = credentials.Certificate(r"C:\Users\tomas\TPOIDD2\projectDB2\Proyecto app web mejorado\app\tp-ing-datos-2-firebase-adminsdk-jhfmf-8540fa01e3.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://tp-ing-datos-2-default-rtdb.firebaseio.com/'
 })
