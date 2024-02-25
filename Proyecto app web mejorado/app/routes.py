@@ -3,6 +3,7 @@ from app import app
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, WriteError,ConnectionFailure
 from datetime import datetime
+from bson import ObjectId
 
 try:
     # Intentamos establecer la conexión con MongoDB Atlas
@@ -67,5 +68,28 @@ def products():
         return redirect(url_for('login'))  # Redirige al usuario al inicio de sesión si no ha iniciado sesión
      # Consultar la colección "Products" en la base de datos y obtener los productos
     products = list(collection_products.find({}))  # Obtener todos los productos de la colección
-    return render_template('products.html', products=products)
+    products_with_str_id = [{'_id': str(product['_id']), 'nombre': product['nombre'], 'imagen': product['imagen'], 'precio': product['precio']} for product in products]
+
+    return render_template('products.html', products=products_with_str_id)
+
+@app.route('/update_price/<string:product_id>', methods=['GET', 'POST'])
+def update_price(product_id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))  # Redirect al login si no logea
+
+    if request.method == 'POST':
+        new_price = float(request.form['new_price'])
+
+        # Actualizar precio en la base de datos
+        collection_products.update_one(
+            {"_id": ObjectId(product_id)},
+            {"$set": {"precio": new_price}}
+        )
+
+        return redirect(url_for('products'))  # Redirecciona deneuvo a productos dps de actualizar
+
+    # Retrieve the product information using the provided product_id
+    product = collection_products.find_one({"_id": ObjectId(product_id)})
+
+    return render_template('update_price.html', product=product)
 

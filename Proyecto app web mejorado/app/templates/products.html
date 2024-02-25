@@ -1,43 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Productos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
     <header>
-        <div class="user-info">
-            {% if not_registered %}
-                <p>Para ver los productos, por favor inicia sesión o regístrate.</p>
-            {% else %}
-                <p>Bienvenido, {{ session['usuario'] }}</p>
-            {% endif %}
-            <!-- Aquí podrías mostrar el email del usuario -->
-        </div>
-        <div class="cart">
-            <!-- Aquí podrías mostrar el contenido del carrito de compras -->
-            <p>Carrito de Compras</p>
-            <!-- Agrega aquí la lógica para mostrar los elementos del carrito -->
-        </div>
-        <h1>Nuestros Productos</h1>
+      <div class="user-info">
+        {% if not_registered %}
+        <p>Para ver los productos, por favor inicia sesión o regístrate.</p>
+        {% else %}
+        <p>Bienvenido, {{ session['usuario'] }}</p>
+        {% endif %}
+        <!-- Aquí podrías mostrar el email del usuario -->
+      </div>
+      <div class="cart">
+        <!-- Aquí podrías mostrar el contenido del carrito de compras -->
+        <p>Carrito de Compras</p>
+        <!-- Agrega aquí la lógica para mostrar los elementos del carrito -->
+      </div>
+      <h1>Nuestros Productos</h1>
     </header>
     <main>
-        <div class="product-container">
-            <!-- Iterar sobre los productos y mostrarlos -->
-            {% for product in products %}
-                <div class="product">
-                    <img src="{{ product['imagen'] }}" alt="{{ product['nombre'] }}">
-                    <h2>{{ product['nombre'] }}</h2>
-                    <p>Precio: ${{ product['precio'] }}</p>
-                    <!-- Otros detalles del producto si los tienes -->
-                </div>
-            {% endfor %}
+      <div class="product-container">
+        <!-- Iterar sobre los productos y mostrarlos -->
+        {% for product in products %}
+        <div class="product">
+          <img src="{{ product['imagen'] }}" alt="{{ product['nombre'] }}" />
+          <h2>{{ product['nombre'] }}</h2>
+          <p>Precio: ${{ product['precio'] }}</p>
+          <!-- Otros detalles del producto si los tienes -->
+          <form method="get" action="{{ url_for('update_price', product_id=product['_id']) }}">
+            <button type="submit">Actualizar Precio</button>
+        </form>
         </div>
+        {% endfor %}
+      </div>
     </main>
     <footer>
-        <p>Pie de página de la página de productos</p>
+      <p>Pie de página de la página de productos</p>
     </footer>
-</body>
+  </body>
 </html>
