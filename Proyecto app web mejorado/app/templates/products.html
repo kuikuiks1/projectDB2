@@ -21,7 +21,9 @@
       </div>
       <div class="cart">
         <!-- Aquí podrías mostrar el contenido del carrito de compras -->
-        <p>Carrito de Compras</p>
+        <form method="get" action="{{ url_for('cart') }}">
+          <button type="submit" class="cart-button">Carrito de Compras</button>
+      </form>
         <!-- Agrega aquí la lógica para mostrar los elementos del carrito -->
       </div>
       <h1>Nuestros Productos</h1>

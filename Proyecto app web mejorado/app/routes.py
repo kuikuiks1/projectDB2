@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, WriteError,ConnectionFailure
 from datetime import datetime
 from bson import ObjectId
-from .firebase_connection import agregar_producto_al_carrito, quitar_producto_del_carrito, calcular_precio_total_y_limpiar
+from .firebase_connection import obtener_carritos,agregar_producto_al_carrito, quitar_producto_del_carrito, calcular_precio_total_y_limpiar
 
 
 try:
@@ -22,6 +22,8 @@ try:
 except ConnectionFailure as e:
     print(f"Error de conexión a MongoDB Atlas: {e}")
     exit()
+    
+    
 
 @app.route('/')
 def index():
@@ -126,4 +128,46 @@ def add_to_cart(product_id):
     agregar_producto_al_carrito(session['usuario'], product_id, product['precio'])
 
     return redirect(url_for('products'))
+
+@app.route('/cart')
+def cart():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Retrieve cart information from the Firebase database
+    cart_data = obtener_carrito(session['usuario'])
+    cart = []
+    if cart_data:
+        for product_id, details in cart_data.items():
+            product = collection_products.find_one({"_id": ObjectId(product_id)})
+            if product:
+                cart.append({
+                    'product_id': str(product['_id']),
+                    'nombre': product['nombre'],
+                    'cantidad': details['cantidad'],
+                    'precio_unitario': product['precio'],
+                    'total': details['cantidad'] * product['precio']
+                })
+
+    return render_template('cart.html', cart=cart)
+
+@app.route('/remove_from_cart/<string:product_id>', methods=['POST'])
+def remove_from_cart(product_id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Remove the product from the cart in the Firebase database
+    quitar_producto_del_carrito(session['usuario'], product_id)
+
+    return redirect(url_for('cart'))
+
+@app.route('/confirm_cart', methods=['POST'])
+def confirm_cart():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Confirm the cart and upload it to the Firebase database
+    confirmar_carrito(session['usuario'])
+
+    return redirect(url_for('cart'))
 
