@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, session, url_for
+from flask import render_template, request, redirect, session, url_for, jsonify
 from app import app
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, WriteError,ConnectionFailure
@@ -15,6 +15,7 @@ try:
     collection_users = db['Users']
     collection_sessions = db['Sessions']
     collection_products = db['Products']
+    collection_logs = db['logs']
 
 except ConnectionFailure as e:
     print(f"Error de conexión a MongoDB Atlas: {e}")
@@ -76,20 +77,35 @@ def products():
 def update_price(product_id):
     if 'usuario' not in session:
         return redirect(url_for('login'))  # Redirect al login si no logea
+    
+    product = collection_products.find_one({"_id": ObjectId(product_id)})
+    
+    if not product:
+        return render_template('error.html', error="Producto no encontrado")
 
     if request.method == 'POST':
         new_price = float(request.form['new_price'])
 
         # Actualizar precio en la base de datos
-        collection_products.update_one(
+        result = collection_products.update_one(
             {"_id": ObjectId(product_id)},
             {"$set": {"precio": new_price}}
         )
-
-        return redirect(url_for('products'))  # Redirecciona deneuvo a productos dps de actualizar
-
-    # Retrieve the product information using the provided product_id
-    product = collection_products.find_one({"_id": ObjectId(product_id)})
+        
+         # Verificar si la actualización fue exitosa
+        if result.modified_count > 0:
+            # Registrar el log en la colección de logs
+            log_entry = {
+                "producto_id": ObjectId(product_id),
+                "usuario": session['usuario'],
+                "fecha": datetime.now(),
+                "precio_anterior": product['precio'],
+                "precio_nuevo": new_price
+            }
+            collection_logs.insert_one(log_entry)
+            return redirect(url_for('products'))  # Redirecciona deneuvo a productos dps de actualizar
+        else:
+            return render_template('error.html', error="No se pudo actualizar el precio del producto")
 
     return render_template('update_price.html', product=product)
 
