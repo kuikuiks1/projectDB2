@@ -8,6 +8,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+from flask import jsonify
 
 
 cred = credentials.Certificate(r"C:\Users\tomas\TPOIDD2\projectDB2\Proyecto app web mejorado\app\tp-ing-datos-2-firebase-adminsdk-jhfmf-8540fa01e3.json")
@@ -21,13 +22,15 @@ ref = db.reference("/")
 def obtener_carritos(user):
     print(user)
     # Obtén una referencia al nodo de todos los carritos en la base de datos
-    #ref_carritos = db.reference('/carrito')
-    # Consulta todos los carritos
+    # ref_carritos = db.reference('/carrito')
+    # # Consulta todos los carritos
     # carritos = ref_carritos.get()
-    ref_carrito = db.reference(f'/carrito/{correo.split("@")[0]}')
-    print(ref_carrito)
-
-    return carritos
+    # print(carritos)
+    ref_carrito = db.reference(f'/carrito/{user.split("@")[0]}')
+    print(ref_carrito.get())
+    carrito_usuario = jsonify(ref_carrito.get()) #devuelve un diccionario que pasamos como json
+    print(carrito_usuario)
+    return carrito_usuario
 
 
 

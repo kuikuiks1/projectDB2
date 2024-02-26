@@ -136,6 +136,7 @@ def cart():
 
     # Retrieve cart information from the Firebase database
     cart_data = obtener_carritos(session['usuario'])
+    print("cart data: ", cart_data)
     cart = []
     if cart_data:
         for product_id, details in cart_data.items():
