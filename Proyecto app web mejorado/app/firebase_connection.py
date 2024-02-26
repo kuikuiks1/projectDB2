@@ -10,7 +10,6 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from flask import jsonify
 
-
 cred = credentials.Certificate(r"C:\Users\tomas\TPOIDD2\projectDB2\Proyecto app web mejorado\app\tp-ing-datos-2-firebase-adminsdk-jhfmf-8540fa01e3.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://tp-ing-datos-2-default-rtdb.firebaseio.com/'
@@ -27,9 +26,7 @@ def obtener_carritos(user):
     # carritos = ref_carritos.get()
     # print(carritos)
     ref_carrito = db.reference(f'/carrito/{user.split("@")[0]}')
-    print(ref_carrito.get())
-    carrito_usuario = jsonify(ref_carrito.get()) #devuelve un diccionario que pasamos como json
-    print(carrito_usuario)
+    carrito_usuario = ref_carrito.get()#devuelve un diccionario
     return carrito_usuario
 
 

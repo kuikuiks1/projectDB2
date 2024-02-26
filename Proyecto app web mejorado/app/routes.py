@@ -136,7 +136,6 @@ def cart():
 
     # Retrieve cart information from the Firebase database
     cart_data = obtener_carritos(session['usuario'])
-    print("cart data: ", cart_data)
     cart = []
     if cart_data:
         for product_id, details in cart_data.items():
@@ -149,8 +148,11 @@ def cart():
                     'precio_unitario': product['precio'],
                     'total': details['cantidad'] * product['precio']
                 })
-
-    return render_template('cart.html', cart=cart)
+    carrito_array = []
+    for item in cart:
+        carrito_array.append(list(item.values()))
+    print(carrito_array)
+    return render_template('cart.html', cart=carrito_array)
 
 @app.route('/remove_from_cart/<string:product_id>', methods=['POST'])
 def remove_from_cart(product_id):
@@ -168,7 +170,7 @@ def confirm_cart():
         return redirect(url_for('login'))
 
     # Confirm the cart and upload it to the Firebase database
-    confirmar_carrito(session['usuario'])
+    calcular_precio_total_y_limpiar(session['usuario'])
 
     return redirect(url_for('cart'))
 

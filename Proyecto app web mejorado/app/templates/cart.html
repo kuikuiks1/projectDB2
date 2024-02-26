@@ -29,14 +29,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in cart.items %}
+                        {% for item in cart %}
                             <tr>
-                                <td>{{ item.nombre }}</td>
-                                <td>{{ item.cantidad }}</td>
-                                <td>${{ item.precio_unitario }}</td>
-                                <td>${{ item.total }}</td>
+                                <td>{{ item[1] }}</td>
+                                <td>{{ item[2] }}</td>
+                                <td>${{ item[3] }}</td>
+                                <td>${{ item[4] }}</td>
                                 <td>
-                                    <form method="post" action="{{ url_for('remove_from_cart', product_id=item.product_id) }}">
+                                    <form method="post" action="{{ url_for('remove_from_cart', product_id=item[0]) }}">
                                         <button type="submit">Quitar del Carrito</button>
                                     </form>
                                 </td>
@@ -59,7 +59,6 @@
         </div>
     </main>
     <footer>
-        <p>Pie de página del carrito de compras</p>
     </footer>
 </body>
 </html>
