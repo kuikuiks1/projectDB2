@@ -151,8 +151,11 @@ def cart():
     carrito_array = []
     for item in cart:
         carrito_array.append(list(item.values()))
-    print(carrito_array)
-    return render_template('cart.html', cart=carrito_array)
+    total = 0
+    for products in carrito_array:
+            total += products[-1]
+            
+    return render_template('cart.html', cart=carrito_array, total=total)
 
 @app.route('/remove_from_cart/<string:product_id>', methods=['POST'])
 def remove_from_cart(product_id):

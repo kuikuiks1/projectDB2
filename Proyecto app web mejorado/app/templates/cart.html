@@ -44,7 +44,7 @@
                         {% endfor %}
                         <tr>
                             <td colspan="3"></td>
-                            <td>Total: ${{ cart.total }}</td>
+                            <td>Total: $ {{ total }}</td>
                             <td>
                                 <form method="post" action="{{ url_for('confirm_cart') }}">
                                     <button type="submit">Confirmar Carrito</button>
