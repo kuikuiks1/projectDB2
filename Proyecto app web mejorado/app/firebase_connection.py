@@ -30,7 +30,7 @@ def obtener_carritos(user):
 
 
 
-def agregar_producto_al_carrito(correo, producto_id, precio_producto):
+def agregar_producto_al_carrito(correo, producto_id, precio_producto, nombre):
     # Obtén una referencia al nodo del carrito en la base de datos
     ref_carrito = db.reference(f'/carrito/{correo.split("@")[0]}')
 
@@ -41,11 +41,11 @@ def agregar_producto_al_carrito(correo, producto_id, precio_producto):
         # Si el producto ya está en el carrito, aumenta la cantidad en 1
         cantidad_actual = producto_en_carrito.get('cantidad', 0)
         nueva_cantidad = cantidad_actual + 1
-        ref_carrito.child(producto_id).update({'cantidad': nueva_cantidad, 'precio': precio_producto})
+        ref_carrito.child(producto_id).update({'cantidad': nueva_cantidad, 'precio': precio_producto, 'nombre': nombre})
         print(f'Se agregó 1 unidad del producto {producto_id} al carrito de {correo}.')
     else:
         # Si el producto no está en el carrito, agrégalo con cantidad 1
-        ref_carrito.child(producto_id).set({'cantidad': 1, 'precio': precio_producto})
+        ref_carrito.child(producto_id).set({'cantidad': 1, 'precio': precio_producto, 'nombre': nombre})
         print(f'Se agregó el producto {producto_id} al carrito de {correo}.')
 
 def quitar_producto_del_carrito(correo, producto_id):
@@ -84,9 +84,10 @@ def calcular_precio_total_y_limpiar(correo):
         for producto_id, producto_info in productos_en_carrito.items():
             cantidad = producto_info.get('cantidad', 0)
             precio_unitario = producto_info.get('precio', 0)
+            nombre = producto_info.get('nombre', 0)
             print(cantidad, precio_unitario)
             precio_total += cantidad * precio_unitario
-            detalle_factura.append((producto_id, cantidad, precio_unitario))
+            detalle_factura.append((nombre, cantidad, precio_unitario, precio_total))
 
         # Genera la factura PDF
         nombre_pdf = generar_factura_pdf(detalle_factura)
@@ -117,8 +118,8 @@ def generar_factura_pdf(detalle_factura):
     c.drawString(100, 710, "Detalle de la Compra:")
     
     y = 690
-    for producto, cantidad, precio_unitario in detalle_factura:
-        c.drawString(120, y, f"{producto}: {cantidad} unidades x ${precio_unitario}")
+    for producto, cantidad, precio_unitario, precio_total in detalle_factura:
+        c.drawString(120, y, f"{producto}: {cantidad} unidades x ${precio_unitario} \n total = $ {precio_total}" )
         y -= 20
     
     # Cerrar el lienzo

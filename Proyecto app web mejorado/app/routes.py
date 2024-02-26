@@ -125,7 +125,7 @@ def add_to_cart(product_id):
         return render_template('error.html', error="Producto no encontrado")
 
     # Add the product to the cart in the Firebase database
-    agregar_producto_al_carrito(session['usuario'], product_id, product['precio'])
+    agregar_producto_al_carrito(session['usuario'], product_id, product['precio'], product['nombre'])
 
     return redirect(url_for('products'))
 
