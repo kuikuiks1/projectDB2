@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="user-info">
+            <p>Bienvenido, {{ session['usuario'] }}</p>
+        </div>
+        <div class="cart">
+            <h1>Carrito de Compras</h1>
+        </div>
+    </header>
+    <main>
+        <div class="cart-container">
+            {% if cart %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart %}
+                            <tr>
+                                <td>{{ item[1] }}</td>
+                                <td>{{ item[2] }}</td>
+                                <td>${{ item[3] }}</td>
+                                <td>${{ item[4] }}</td>
+                                <td>
+                                    <form method="post" action="{{ url_for('remove_from_cart', product_id=item[0]) }}">
+                                        <button type="submit">Quitar del Carrito</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="3"></td>
+                            <td>Total: ${{ cart.total }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('confirm_cart') }}">
+                                    <button type="submit">Confirmar Carrito</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <p>El carrito está vacío.</p>
+            {% endif %}
+        </div>
+    </main>
+    <footer>
+    </footer>
+</body>
+</html>

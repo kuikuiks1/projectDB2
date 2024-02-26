@@ -1,8 +1,11 @@
-from flask import render_template, request, redirect, session, url_for
+from flask import render_template, request, redirect, session, url_for, jsonify
 from app import app
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, WriteError,ConnectionFailure
 from datetime import datetime
+from bson import ObjectId
+from .firebase_connection import obtener_carritos,agregar_producto_al_carrito, quitar_producto_del_carrito, calcular_precio_total_y_limpiar
+
 
 try:
     # Intentamos establecer la conexión con MongoDB Atlas
@@ -14,10 +17,13 @@ try:
     collection_users = db['Users']
     collection_sessions = db['Sessions']
     collection_products = db['Products']
+    collection_logs = db['logs']
 
 except ConnectionFailure as e:
     print(f"Error de conexión a MongoDB Atlas: {e}")
     exit()
+    
+    
 
 @app.route('/')
 def index():
@@ -67,5 +73,104 @@ def products():
         return redirect(url_for('login'))  # Redirige al usuario al inicio de sesión si no ha iniciado sesión
      # Consultar la colección "Products" en la base de datos y obtener los productos
     products = list(collection_products.find({}))  # Obtener todos los productos de la colección
-    return render_template('products.html', products=products)
+    products_with_str_id = [{'_id': str(product['_id']), 'nombre': product['nombre'], 'imagen': product['imagen'], 'precio': product['precio']} for product in products]
+
+    return render_template('products.html', products=products_with_str_id)
+
+@app.route('/update_price/<string:product_id>', methods=['GET', 'POST'])
+def update_price(product_id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))  # Redirect al login si no logea
+    
+    product = collection_products.find_one({"_id": ObjectId(product_id)})
+    
+    if not product:
+        return render_template('error.html', error="Producto no encontrado")
+
+    if request.method == 'POST':
+        new_price = float(request.form['new_price'])
+
+        # Actualizar precio en la base de datos
+        result = collection_products.update_one(
+            {"_id": ObjectId(product_id)},
+            {"$set": {"precio": new_price}}
+        )
+        
+         # Verificar si la actualización fue exitosa
+        if result.modified_count > 0:
+            # Registrar el log en la colección de logs
+            log_entry = {
+                "producto_id": ObjectId(product_id),
+                "usuario": session['usuario'],
+                "fecha": datetime.now(),
+                "precio_anterior": product['precio'],
+                "precio_nuevo": new_price
+            }
+            collection_logs.insert_one(log_entry)
+            return redirect(url_for('products'))  # Redirecciona deneuvo a productos dps de actualizar
+        else:
+            return render_template('error.html', error="No se pudo actualizar el precio del producto")
+
+    return render_template('update_price.html', product=product)
+
+@app.route('/add_to_cart/<string:product_id>')
+def add_to_cart(product_id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Retrieve product information using the provided product_id
+    product = collection_products.find_one({"_id": ObjectId(product_id)})
+
+    if not product:
+        return render_template('error.html', error="Producto no encontrado")
+
+    # Add the product to the cart in the Firebase database
+    agregar_producto_al_carrito(session['usuario'], product_id, product['precio'])
+
+    return redirect(url_for('products'))
+
+@app.route('/cart')
+def cart():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Retrieve cart information from the Firebase database
+    cart_data = obtener_carritos(session['usuario'])
+    cart = []
+    if cart_data:
+        for product_id, details in cart_data.items():
+            product = collection_products.find_one({"_id": ObjectId(product_id)})
+            if product:
+                cart.append({
+                    'product_id': str(product['_id']),
+                    'nombre': product['nombre'],
+                    'cantidad': details['cantidad'],
+                    'precio_unitario': product['precio'],
+                    'total': details['cantidad'] * product['precio']
+                })
+    carrito_array = []
+    for item in cart:
+        carrito_array.append(list(item.values()))
+    print(carrito_array)
+    return render_template('cart.html', cart=carrito_array)
+
+@app.route('/remove_from_cart/<string:product_id>', methods=['POST'])
+def remove_from_cart(product_id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Remove the product from the cart in the Firebase database
+    quitar_producto_del_carrito(session['usuario'], product_id)
+
+    return redirect(url_for('cart'))
+
+@app.route('/confirm_cart', methods=['POST'])
+def confirm_cart():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Confirm the cart and upload it to the Firebase database
+    calcular_precio_total_y_limpiar(session['usuario'])
+
+    return redirect(url_for('cart'))
 
