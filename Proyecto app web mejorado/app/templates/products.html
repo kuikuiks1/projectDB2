@@ -11,50 +11,53 @@
   </head>
   <body>
     <header>
-      <div class="user-info">
-        {% if not_registered %}
-        <p>Para ver los productos, por favor inicia sesión o regístrate.</p>
-        {% else %}
-        <p>Bienvenido, {{ session['usuario'] }}</p>
-        {% endif %}
-        <!-- Aquí podrías mostrar el email del usuario -->
+      <div class="container">
+        <div class="user-info">
+          {% if not_registered %}
+          <p>Para ver los productos, por favor inicia sesión o regístrate.</p>
+          {% else %}
+          <p>Bienvenido, {{ session['usuario'] }}</p>
+          {% endif %}
+        </div>
+        <div class="cart">
+          <form method="get" action="{{ url_for('cart') }}">
+            <button type="submit" class="cart-button">
+              Carrito de Compras
+            </button>
+          </form>
+        </div>
+        <h1>Nuestros Productos</h1>
       </div>
-      <div class="cart">
-        <!-- Aquí podrías mostrar el contenido del carrito de compras -->
-        <form method="get" action="{{ url_for('cart') }}">
-          <button type="submit" class="cart-button">Carrito de Compras</button>
-      </form>
-        <!-- Agrega aquí la lógica para mostrar los elementos del carrito -->
-      </div>
-      <h1>Nuestros Productos</h1>
     </header>
     <main>
       <div class="product-container">
-        <!-- Iterar sobre los productos y mostrarlos -->
         {% for product in products %}
         <div class="product">
           <img src="{{ product['imagen'] }}" alt="{{ product['nombre'] }}" />
           <h2>{{ product['nombre'] }}</h2>
-          <p>Precio: ${{ product['precio'] }}</p>
-          <!-- Otros detalles del producto si los tienes -->
-          <!-- Add button to add product to the cart -->
-          <form
-            method="get"
-            action="{{ url_for('add_to_cart', product_id=product['_id']) }}"
-          >
-            <button type="submit">Agregar al Carrito</button>
-          </form>
-          <form
-            method="get"
-            action="{{ url_for('update_price', product_id=product['_id']) }}"
-          >
-            <button type="submit">Actualizar Precio</button>
-          </form>
+          <p class="price">Precio: ${{ product['precio'] }}</p>
+          <div class="buttons">
+            <form
+              method="get"
+              action="{{ url_for('add_to_cart', product_id=product['_id']) }}"
+            >
+              <button type="submit" class="add-to-cart-button">
+                Agregar al Carrito
+              </button>
+            </form>
+            <form
+              method="get"
+              action="{{ url_for('update_price', product_id=product['_id']) }}"
+            >
+              <button type="submit" class="update-price-button">
+                Actualizar Precio
+              </button>
+            </form>
+          </div>
         </div>
         {% endfor %}
       </div>
     </main>
-    <footer>
-    </footer>
+    <footer></footer>
   </body>
 </html>
