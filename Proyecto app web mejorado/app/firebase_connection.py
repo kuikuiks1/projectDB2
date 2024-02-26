@@ -91,6 +91,8 @@ def calcular_precio_total_y_limpiar(correo):
         # Genera la factura PDF
         nombre_pdf = generar_factura_pdf(detalle_factura)
 
+        db.reference('registro_pagos').update({'usuario': correo, 'registro_pago': nombre_pdf})
+        
         # Enviar la factura por correo electrónico
         enviar_correo_con_factura(nombre_pdf, correo)
 
