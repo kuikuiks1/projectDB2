@@ -116,13 +116,14 @@ def generar_factura_pdf(detalle_factura):
     c.drawString(100, 750, "Factura de Compra")
     c.drawString(100, 730, f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     c.drawString(100, 710, "Detalle de la Compra:")
-    
     y = 690
     for producto, cantidad, precio_unitario, precio_total in detalle_factura:
-        c.drawString(120, y, f"{producto}: {cantidad} unidades x ${precio_unitario} \n total = $ {precio_total}" )
+        c.drawString(120, y, f"{producto}: {cantidad} unidades x ${precio_unitario}")
         y -= 20
-    
     # Cerrar el lienzo
+    c.drawString(120, 500, f"total = $ {detalle_factura[-1][-1]}" )
+    c.drawString(120, 480, f"total con IVA = $ {float(detalle_factura[-1][-1]) * 1.21 }" )
+    
     c.save()
 
     return nombre_archivo
